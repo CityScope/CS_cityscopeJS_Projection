@@ -1,7 +1,11 @@
 var slideIndex = 0;
 var playing = false;
 var currentTimeout;
-var folderName = "media/";
+var settings = null;
+
+$.getJSON("settings.json", function(json) {
+    settings = json;
+});
 
 // make the keystoneContainer div
 $("<div/>", {
@@ -63,7 +67,9 @@ function handleFileSelect(evt) {
         ) {
             output.push(
                 '<div class=" mySlides fade" ><img src="' +
-                    folderName +
+                    "/" +
+                    settings.media_folder +
+                    "/" +
                     escape(f.name) +
                     '" height=" 100%" width= "100%" ></div>'
             );
@@ -71,7 +77,9 @@ function handleFileSelect(evt) {
             //if movie file
             output.push(
                 '<div class="mySlides fade"><video controls="controls" poster="MEDIA" src="' +
-                    folderName +
+                    "/" +
+                    settings.media_folder +
+                    "/" +
                     escape(f.name) +
                     '" id="video' +
                     i +
@@ -308,7 +316,7 @@ document.body.addEventListener(
         let message = {};
         message.command = "sync";
         //change slides and send to channel
-        if (keyName == "ArrowLeft") {
+        if (keyName == settings.next_slide_button) {
             message.id = slideIndex;
             console.log(
                 "(master) sync with slide No:" +
@@ -318,7 +326,7 @@ document.body.addEventListener(
             );
             window.document.channel.postMessage(JSON.stringify(message));
             plusSlides(-1);
-        } else if (keyName == "ArrowRight" || keyName == "b") {
+        } else if (keyName == settings.prev_slide_button) {
             message.id = slideIndex;
             console.log(
                 "(master) sync with slide No:" +
@@ -350,6 +358,8 @@ document.body.addEventListener(
         } else if (keyName == "]") {
             slideDivCrop(5);
         } else if (keyName == "S") {
+            console.log("save to cityIO...");
+
             cityIO();
         }
     },
