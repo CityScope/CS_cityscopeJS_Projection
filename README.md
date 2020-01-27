@@ -6,43 +6,50 @@ This tool allows projection mapping [key-stone] of multiple DOM Div objects. The
 
 ## Usage
 
-- clone this repo
-- put images/videos [jepg, jpg, png, mp4, mov,avi] in a folder called  
-  `media`
-- load `index.html` through local host
-- click the button to load img/vid files
+-   clone this repo
+-   put images/videos [jepg, jpg, png, mp4, mov,avi] in a folder called  
+    `media`
+-   load `index.html` through local host
+-   click the button to load img/vid files
+
+### Kiosk mode and auto-start
+
+If `settings.json` has `"kiosk": true`, the applet will look for the array of videos in `output` field, and run the autoplay based on `interval`.
+
+open window in kiosk mode (not full screen):
+`/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --kiosk --app=__URL__`
 
 ### Multi-monitor/projector Usage
 
-- duplicate the same tab
-- load the same media files in both tabs
-- click left/right and the slides should be synced in both tabs
+-   duplicate the same tab
+-   load the same media files in both tabs
+-   click left/right and the slides should be synced in both tabs
 
 ### Slides
 
-- use `left/right` arrow keys to change images
+-   use `left/right` arrow keys to change images
 
 ### Keystoning/projection mapping
 
 [taken from MapTastic docs]
 
-- press `Shift+z` to Toggle [on/off] edit mode and reposition and keystone the divs
+-   press `Shift+z` to Toggle [on/off] edit mode and reposition and keystone the divs
 
 ### In Edit Mode
 
-- click or drag select and move quads/corner points
-- `SHIFT + drag` move selected quad/corner point with 10x precision
-- `ALT + drag` rotate and scale selected quad
-- `SHIFT + ALT + drag` rotate and scale selected quad with 10x precision.
-- Arrow keys move selected quad/corner point
-- `SHIFT + Arrow keys` move selected quad/corner point by 10 pixels
-- `ALT + Arrow keys` rotate and scale selected quad
-- `s` Solo or unsolo the selected quad (hides all others). This helps to adjust quads when corner points are very close together.
-- `c` Toggle mouse cursor crosshairs
-- `b` Toggle display bounds/metrics
-- `r` Rotate selected layer 90 degrees clockwise
-- `h` Flip selected layer horizontally
-- `v` Flip selected layer vertically
+-   click or drag select and move quads/corner points
+-   `SHIFT + drag` move selected quad/corner point with 10x precision
+-   `ALT + drag` rotate and scale selected quad
+-   `SHIFT + ALT + drag` rotate and scale selected quad with 10x precision.
+-   Arrow keys move selected quad/corner point
+-   `SHIFT + Arrow keys` move selected quad/corner point by 10 pixels
+-   `ALT + Arrow keys` rotate and scale selected quad
+-   `s` Solo or unsolo the selected quad (hides all others). This helps to adjust quads when corner points are very close together.
+-   `c` Toggle mouse cursor crosshairs
+-   `b` Toggle display bounds/metrics
+-   `r` Rotate selected layer 90 degrees clockwise
+-   `h` Flip selected layer horizontally
+-   `v` Flip selected layer vertically
 
 ---
 

@@ -2,17 +2,6 @@ body {
     margin: 0;
     padding: 0;
     color: white;
-    background-size: 40px 40px;
-    background-color: black;
-    background-image: linear-gradient(
-            to right,
-            rgb(29, 29, 29) 0.1px,
-            transparent 1px
-        ),
-        linear-gradient(to bottom, rgb(27, 27, 27) 0.1px, transparent 1px);
-}
-
-:-webkit-full-screen {
     background-color: black;
 }
 

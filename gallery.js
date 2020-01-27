@@ -3,15 +3,50 @@ var playing = false;
 var currentTimeout;
 var settings = null;
 
-$.getJSON("settings.json", function(json) {
-    settings = json;
-});
-
 // make the keystoneContainer div
 $("<div/>", {
     id: "keystoneContainer"
 }).appendTo("body");
 Maptastic("keystoneContainer");
+
+$.getJSON("settings.json", function(json) {
+    settings = json;
+    if (settings.kiosk) {
+        kioskMode();
+    }
+});
+
+/**
+ * auto run on init given settings
+ * ONLY VIDEOS FOR NOW
+ */
+
+kioskMode = () => {
+    let arr = [];
+    settings.output.forEach(mediaFile => {
+        arr.push(
+            '<div class="mySlides fade">\
+            <video controls="controls"\
+             poster="MEDIA" src="' +
+                "/" +
+                settings.media_folder +
+                "/" +
+                mediaFile +
+                '" id="' +
+                mediaFile +
+                '" height="100%" width= "100%" \
+                muted="muted"></video></div>'
+        );
+    });
+
+    document.getElementById("keystoneContainer").innerHTML = arr.join("");
+    togglePlayPause();
+
+    let ui = document.getElementById("ui");
+    if (ui.style.display == "block") {
+        ui.style.display = "none";
+    }
+};
 
 //----------------------------------------------------------------------
 // TODO: hide chanel variable once it is working
@@ -90,6 +125,7 @@ function handleFileSelect(evt) {
             video_ids.push(video_id);
         }
     }
+
     // put slides in first div
     document.getElementById("keystoneContainer").innerHTML = output.join("");
 
@@ -147,19 +183,17 @@ function showSlides(n) {
 //autoplay when press P
 function autoSlideShow() {
     let interval;
-    input = document.getElementById("intSlide");
-
-    if (!input.value) {
-        interval = input.placeholder;
+    if (!document.getElementById("intSlide").value) {
+        interval = settings.autoplay_interval;
     } else {
         interval = input.value;
     }
-
     console.log("Auto slideshow, every " + interval + " seconds.");
-    var i;
+
     var slides = document.getElementsByClassName("mySlides");
+
     //hide all slides divs  at start
-    for (i = 0; i < slides.length; i++) {
+    for (var i = 0; i < slides.length; i++) {
         slides[i].style.display = "none";
     }
 
@@ -236,7 +270,7 @@ function slideDivCrop(cropAmount) {
 
 //----------------------------------------------------------------------
 
-//full screen when '`/~' is pressed
+//go full screen
 function toggleFullScreen() {
     var doc = window.document;
     var docEl = doc.documentElement;
@@ -338,7 +372,6 @@ document.body.addEventListener(
             plusSlides(1);
         } else if (keyCode == 70) {
             toggleFullScreen();
-            // if (evtobj.keyCode == 72 && evtobj.ctrlKey) {
             console.log(" [f] pressed, toggle full screen, help and UI");
             let ui = document.getElementById("ui");
             if (ui.style.display == "block") {
@@ -346,7 +379,6 @@ document.body.addEventListener(
             } else {
                 ui.style.display = "block";
             }
-            // } else
         } else if (keyName == "P") {
             togglePlayPause();
         } else if (keyName == "-") {
