@@ -33,7 +33,7 @@ window.document.channel.onmessage = function(m) {
 };
 
 const sendContianer = document.querySelector("#send");
-sendContianer.addEventListener("click", e => {
+sendContianer.addEventListener("click", () => {
     let incMessage = {};
     incMessage.command = "increment";
     window.document.channel.postMessage(JSON.stringify(incMessage));
@@ -45,7 +45,6 @@ function handleFileSelect(evt) {
     // FileList object
     var files = evt.target.files;
     console.log(files);
-    console.log(evt);
 
     // files is a FileList of File objects. List some properties.
     var output = [];
@@ -300,11 +299,6 @@ function cityIO() {
 
 // INTERACTION
 
-//loading files
-document
-    .getElementById("files")
-    .addEventListener("change", handleFileSelect, false);
-
 //interaction
 document.body.addEventListener(
     "keydown",
@@ -372,3 +366,8 @@ function KeyPress(e) {
         location.reload();
     }
 }
+
+//loading files
+document
+    .getElementById("files")
+    .addEventListener("change", handleFileSelect, false);
