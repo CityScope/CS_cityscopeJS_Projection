@@ -24,19 +24,39 @@ $.getJSON("settings.json", function(json) {
 kioskMode = () => {
     let arr = [];
     settings.output.forEach(mediaFile => {
-        arr.push(
-            '<div class="mySlides fade">\
+        //if img file ext.
+        if (
+            mediaFile.slice(-3) != "mov" &&
+            mediaFile.slice(-3) != "MOV" &&
+            mediaFile.slice(-3) != "mp4" &&
+            mediaFile.slice(-3) != "mpe" &&
+            mediaFile.slice(-3) != "MP4" &&
+            mediaFile.slice(-3) != "avi" &&
+            mediaFile.slice(-3) != "AVI"
+        ) {
+            arr.push(
+                '<div class=" mySlides fade" ><img src="' +
+                    "/" +
+                    settings.media_folder +
+                    "/" +
+                    mediaFile +
+                    '" height=" 100%" width= "100%" ></div>'
+            );
+        } else {
+            arr.push(
+                '<div class="mySlides fade">\
             <video controls="controls"\
              poster="MEDIA" src="' +
-                "/" +
-                settings.media_folder +
-                "/" +
-                mediaFile +
-                '" id="' +
-                mediaFile +
-                '" height="100%" width= "100%" \
+                    "/" +
+                    settings.media_folder +
+                    "/" +
+                    mediaFile +
+                    '" id="' +
+                    mediaFile +
+                    '" height="100%" width= "100%" \
                 muted="muted"></video></div>'
-        );
+            );
+        }
     });
 
     document.getElementById("keystoneContainer").innerHTML = arr.join("");
