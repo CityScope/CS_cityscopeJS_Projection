@@ -22,8 +22,10 @@ open window in kiosk mode (not full screen):
 ### Multi-monitor/projector Usage
 
 -   duplicate the same tab
--   load the same media files in both tabs
+-   load media files in both tabs -- must be the same number of files!
 -   click left/right and the slides should be synced in both tabs
+-   If setting different files in the other machine, it is possible to load a different `__UNIQUE_NAME__.json` via the URL in the format:
+    `__URL__/?__UNIQUE_NAME__.json`. NOTE the `?` before the file name. Wrong filename will result with defaulting to `settings.json`
 
 ### Slides
 

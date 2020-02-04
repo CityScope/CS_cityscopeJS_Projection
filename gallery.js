@@ -1,7 +1,10 @@
+var settingFileName = window.location.search.split("?")[1];
+console.log("setting File Name:", settingFileName);
+
 var slideIndex = 0;
 var playing = false;
 var currentTimeout;
-var settings = null;
+var appSettings = null;
 
 // make the keystoneContainer div
 $("<div/>", {
@@ -9,13 +12,20 @@ $("<div/>", {
 }).appendTo("body");
 Maptastic("keystoneContainer");
 
-$.getJSON("settings.json", function(json) {
-    settings = json;
-    if (settings.kiosk) {
-        kioskMode();
-    }
-});
+let getSetting = fileName =>
+    $.getJSON(fileName, function(json) {
+        appSettings = json;
+        console.log(json);
 
+        if (appSettings.kiosk) {
+            kioskMode();
+        }
+    }).fail(function() {
+        console.log("setting file name error...");
+        getSetting("settings.json");
+    });
+
+getSetting(settingFileName);
 /**
  * auto run on init given settings
  * ONLY VIDEOS FOR NOW
@@ -23,7 +33,7 @@ $.getJSON("settings.json", function(json) {
 
 kioskMode = () => {
     let arr = [];
-    settings.output.forEach(mediaFile => {
+    appSettings.output.forEach(mediaFile => {
         //if img file ext.
         if (
             mediaFile.slice(-3) != "mov" &&
@@ -37,7 +47,7 @@ kioskMode = () => {
             arr.push(
                 '<div class=" mySlides fade" ><img src="' +
                     "/" +
-                    settings.media_folder +
+                    appSettings.media_folder +
                     "/" +
                     mediaFile +
                     '" height=" 100%" width= "100%" ></div>'
@@ -48,7 +58,7 @@ kioskMode = () => {
             <video controls="controls"\
              poster="MEDIA" src="' +
                     "/" +
-                    settings.media_folder +
+                    appSettings.media_folder +
                     "/" +
                     mediaFile +
                     '" id="' +
@@ -123,7 +133,7 @@ function handleFileSelect(evt) {
             output.push(
                 '<div class=" mySlides fade" ><img src="' +
                     "/" +
-                    settings.media_folder +
+                    appSettings.media_folder +
                     "/" +
                     escape(f.name) +
                     '" height=" 100%" width= "100%" ></div>'
@@ -133,7 +143,7 @@ function handleFileSelect(evt) {
             output.push(
                 '<div class="mySlides fade"><video controls="controls" poster="MEDIA" src="' +
                     "/" +
-                    settings.media_folder +
+                    appSettings.media_folder +
                     "/" +
                     escape(f.name) +
                     '" id="video' +
@@ -204,7 +214,7 @@ function showSlides(n) {
 function autoSlideShow() {
     let interval;
     if (!document.getElementById("intSlide").value) {
-        interval = settings.autoplay_interval;
+        interval = appSettings.autoplay_interval;
     } else {
         interval = input.value;
     }
@@ -370,7 +380,7 @@ document.body.addEventListener(
         let message = {};
         message.command = "sync";
         //change slides and send to channel
-        if (keyName == settings.next_slide_button) {
+        if (keyName == appSettings.next_slide_button) {
             message.id = slideIndex;
             console.log(
                 "(master) sync with slide No:" +
@@ -380,7 +390,7 @@ document.body.addEventListener(
             );
             window.document.channel.postMessage(JSON.stringify(message));
             plusSlides(-1);
-        } else if (keyName == settings.prev_slide_button) {
+        } else if (keyName == appSettings.prev_slide_button) {
             message.id = slideIndex;
             console.log(
                 "(master) sync with slide No:" +
