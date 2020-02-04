@@ -14,7 +14,7 @@ This tool allows projection mapping [key-stone] of multiple DOM Div objects. The
 
 ### Kiosk mode and auto-start
 
-If `settings.json` has `"kiosk": true`, the applet will look for the array of videos in `output` field, and run the autoplay based on `interval`.
+If `settings.json` has `"kiosk": true`, the applet will look for the array of videos in `output` field, and run the autoplay based on `interval`. `__URL__/?__UNIQUE_NAME__.json` can also be used, do note the `?` before the file name.
 
 open window in kiosk mode (not full screen):
 `/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --kiosk --app=__URL__`
