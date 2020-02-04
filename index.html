@@ -1,91 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div id="drop_zone">Drop files here</div>
+        <output id="list"></output>
+        <div id="keystoneContainer"></div>
+    </body>
 
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="styles.css">
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js"> </script> -->
-    <script src="jquery-3.3.1.min.js"> </script>
-
-    <script type="application/ld+json">
-        {
-         "@context":"https://github.com/CityScope/CS_Andorra_RNC",
-         "@type":"Person",
-         "address": {
-           "@type":"75 Amherst St, Cambridge, MA 02139",
-           "addressLocality":" Cambridge",
-           "addressRegion":"MA",
-          },
-         
-         "jobTitle":"Research Scientist",
-         "name":"Ariel Noyman",
-         "alumniOf":"MIT",
-         "url":"http://arielnoyman.com",
-         "https://www.linkedin.com/",
-         "http://twitter.com/relno",
-          https://github.com/RELNO]
-        }
-        </script>
-
-</head>
-
-<body>
-    <div id="ui" class="overCanvas" style="display: block;">
-        <div class="logo">
-            <img src="bg.png" alt="Key Stoner" height="150vw">
-        </div>
-        <div id="helpDiv" class="helpDiv">
-            <br>
-            <input type="file" id="files" name="files[]" multiple /></input>
-            <output id="list"></output>
-            <br>
-            <br>
-            <input type="number" placeholder="2" id="intSlide" />
-
-            </input>
-            <input type="button" value="Toggle Slideshow" onclick="togglePlayPause()">
-            <br>
-            <br>
-            <input type="text" name="fname" value="URL" id='inputTxt'></input>
-            <input type="button" value="Make Iframe" onclick="makeIframe()">
-            <br>
-
-            <ul>
-                <h3>Note: all slides must be in a subfolder specified in 'settings.json'</h3>
-                <br>[f] for full screen & show/hide help UI
-                <br>[ctrl+d] to clear local storage [reset keystone]
-                <br> [Shift+z] to Toggle 'keystone Mode'
-                <br> [Shift+p] to Toggle auto-slideshow
-
-            </ul>
-
-
-            <strong>When in Keystone Mode</strong>
-            <ul>
-                <li>click or drag select and move quads/corner points</li>
-                <li>SHIFT + drag move selected quad/corner point with 10x precision</li>
-                <li>ALT + drag rotate and scale selected quad</li>
-                <li>SHIFT + ALT + drag rotate and scale selected quad with 10x precision.</li>
-                <li>Arrow keys move selected quad/corner point</li>
-                <li>SHIFT + Arrow keys move selected quad/corner point by 10 pixels</li>
-                <li>ALT + Arrow keys rotate and scale selected quad</li>
-                <li>'s' Solo or unsolo the selected quad (hides all others).
-                    <br>This helps to adjust quads when corner points are very close together.</li>
-                <li>'c' Toggle mouse cursor crosshairs</li>
-                <li>'b' Toggle display bounds/metrics</li>
-                <li>'r' Rotate selected layer 90 degrees clockwise</li>
-                <li>'h' Flip selected layer horizontally</li>
-                <li>'v' Flip selected layer vertically</li>
-            </ul>
-        </div>
-        <!-- channel sender -->
-        <div id="send"></div>
-
-</body>
-
-
-
-<script src="maptastic.js"></script>
-<script src="gallery.js"></script>
-
+    <script src="maptastic.js"></script>
+    <script src="index.js"></script>
 </html>
