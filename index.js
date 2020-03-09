@@ -1,3 +1,5 @@
+// https://codepen.io/SpencerCooley/pen/JtiFL/
+
 function handleFileSelect(evt) {
     evt.stopPropagation();
     evt.preventDefault();
@@ -7,8 +9,6 @@ function handleFileSelect(evt) {
     // files is a FileList of File objects. List some properties.
     var output = [];
     for (var i = 0, f; (f = files[i]); i++) {
-        console.log(f);
-
         output.push(
             "<li><strong>",
             escape(f.name),
@@ -22,11 +22,23 @@ function handleFileSelect(evt) {
                 : "n/a",
             "</li>"
         );
-    }
-    document.getElementById("list").innerHTML =
-        "<ul>" + output.join("") + "</ul>";
 
-    kioskMode(f.name);
+        renderImage(f);
+    }
+}
+
+//this function is called when the input loads an image
+function renderImage(file) {
+    var reader = new FileReader();
+    reader.onload = function(event) {
+        the_url = event.target.result;
+        let previewDiv = document.getElementById("drop_zone");
+        previewDiv.innerHTML = "<img src='" + the_url + "' />";
+        Maptastic(previewDiv);
+    };
+
+    //when the file is read it triggers the onload event above.
+    reader.readAsDataURL(file);
 }
 
 function handleDragOver(evt) {
@@ -35,103 +47,13 @@ function handleDragOver(evt) {
     evt.dataTransfer.dropEffect = "copy"; // Explicitly show this is a copy.
 }
 
-// Setup the dnd listeners.
-var dropZone = document.getElementById("drop_zone");
-dropZone.addEventListener("dragover", handleDragOver, false);
-dropZone.addEventListener("drop", handleFileSelect, false);
+//check if browser supports file api and filereader features
+if (window.File && window.FileReader && window.FileList && window.Blob) {
+    //this is not completely neccesary, just a nice function I found to make the file size format friendlier
+    //http://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable
 
-/**
- *
- *
- */
-kioskMode = files => {
-    let arr = [];
-    console.log(files);
-
-    files.forEach(mediaFile => {
-        console.log(mediaFile);
-
-        let ext = mediaFile.slice(-3);
-        if (
-            ext != "mov" &&
-            ext != "MOV" &&
-            ext != "mp4" &&
-            ext != "mpe" &&
-            ext != "MP4" &&
-            ext != "avi" &&
-            ext != "AVI"
-        ) {
-            arr.push(
-                '<div class=" mySlides fade" ><img src="' +
-                    mediaFile +
-                    '" height=" 100%" width= "100%" ></div>'
-            );
-        } else {
-            arr.push(
-                '<div class="mySlides fade">\
-            <video controls="controls"\
-             poster="MEDIA" src="' +
-                    "/" +
-                    mediaFile +
-                    '" id="' +
-                    mediaFile +
-                    '" height="100%" width= "100%" \
-                muted="muted"></video></div>'
-            );
-        }
-    });
-
-    document.getElementById("keystoneContainer").innerHTML = arr.join("");
-    autoSlideShow();
-};
-
-function autoSlideShow() {
-    let interval;
-    if (!document.getElementById("intSlide").value) {
-        interval = appSettings.autoplay_interval;
-    } else {
-        interval = input.value;
-    }
-    console.log("Auto slideshow, every " + interval + " seconds.");
-
-    var slides = document.getElementsByClassName("mySlides");
-
-    //hide all slides divs  at start
-    for (var i = 0; i < slides.length; i++) {
-        slides[i].style.display = "none";
-    }
-
-    slideIndex++;
-    let message = {};
-    message.command = "sync";
-    message.id = slideIndex;
-    window.document.channel.postMessage(JSON.stringify(message));
-
-    //resert roll to 1 at end
-    if (slideIndex == slides.length) {
-        slideIndex = 0;
-    }
-    //set this slide
-    thisSlide = slides[slideIndex];
-
-    // if video
-    if (thisSlide.querySelector("video")) {
-        let video = thisSlide.querySelector("video");
-
-        video.currentTime = 0;
-        video.pause();
-        video.onended = function() {
-            console.log("video ended! ts: " + Date.now());
-            let message = {};
-            message.command = "restartVideo";
-            window.document.channel.postMessage(JSON.stringify(message));
-            video.play();
-        };
-        video.play();
-    }
-    thisSlide.style.display = "block";
-
-    if (playing == true) {
-        currentTimeout = setTimeout(autoSlideShow, interval * 1000);
-    }
+    // Setup the dnd listeners.
+    var dropZone = document.getElementById("drop_zone");
+    dropZone.addEventListener("dragover", handleDragOver, false);
+    dropZone.addEventListener("drop", handleFileSelect, false);
 }
