@@ -1,165 +1,87 @@
-var settingFileName = window.location.search.split("?")[1];
-console.log("setting File Name:", settingFileName);
-
 var slideIndex = 0;
 var playing = false;
 var currentTimeout;
 var appSettings = null;
+let shiftHolder = 0;
+
+/**
+ *
+ *
+ */
+var settingFileName = window.location.search.split("?")[1];
+let getSetting = fileName =>
+    $.getJSON(fileName, function(json) {
+        appSettings = json;
+        if (appSettings.kiosk) {
+            kioskMode();
+        }
+    }).fail(function() {
+        console.log("setting file name error, defaulting..");
+        getSetting("settings.json");
+    });
+getSetting(settingFileName);
 
 // make the keystoneContainer div
 $("<div/>", {
     id: "keystoneContainer"
 }).appendTo("body");
-Maptastic("keystoneContainer");
-
-let getSetting = fileName =>
-    $.getJSON(fileName, function(json) {
-        appSettings = json;
-        console.log(json);
-
-        if (appSettings.kiosk) {
-            kioskMode();
-        }
-    }).fail(function() {
-        console.log("setting file name error...");
-        getSetting("settings.json");
-    });
-
-getSetting(settingFileName);
-/**
- * auto run on init given settings
- * ONLY VIDEOS FOR NOW
- */
-
-kioskMode = () => {
-    let arr = [];
-    appSettings.output.forEach(mediaFile => {
-        //if img file ext.
-        if (
-            mediaFile.slice(-3) != "mov" &&
-            mediaFile.slice(-3) != "MOV" &&
-            mediaFile.slice(-3) != "mp4" &&
-            mediaFile.slice(-3) != "mpe" &&
-            mediaFile.slice(-3) != "MP4" &&
-            mediaFile.slice(-3) != "avi" &&
-            mediaFile.slice(-3) != "AVI"
-        ) {
-            arr.push(
-                '<div class=" mySlides fade" ><img src="' +
-                    "/" +
-                    appSettings.media_folder +
-                    "/" +
-                    mediaFile +
-                    '" height=" 100%" width= "100%" ></div>'
-            );
-        } else {
-            arr.push(
-                '<div class="mySlides fade">\
-            <video controls="controls"\
-             poster="MEDIA" src="' +
-                    "/" +
-                    appSettings.media_folder +
-                    "/" +
-                    mediaFile +
-                    '" id="' +
-                    mediaFile +
-                    '" height="100%" width= "100%" \
-                muted="muted"></video></div>'
-            );
-        }
-    });
-
-    document.getElementById("keystoneContainer").innerHTML = arr.join("");
-    togglePlayPause();
-
-    let ui = document.getElementById("ui");
-    if (ui.style.display == "block") {
-        ui.style.display = "none";
-    }
-};
-
-//----------------------------------------------------------------------
-// TODO: hide chanel variable once it is working
-window.document.channel = new BroadcastChannel("channel");
-window.document.channel.onmessage = function(m) {
-    let data = JSON.parse(m.data);
-
-    switch (data.command) {
-        case "sync":
-            console.log(
-                "sync with slide No:" + slideIndex + ", ts: " + Date.now()
-            );
-            slideIndex = data.id;
-            showSlides(slideIndex);
-            break;
-        case "restartVideo":
-            console.log("forcing video to position 0 and restart");
-            showSlides(slideIndex);
-            break;
-        default:
-            console.log("undefined command:" + data.command);
-    }
-};
-
-const sendContianer = document.querySelector("#send");
-sendContianer.addEventListener("click", () => {
-    let incMessage = {};
-    incMessage.command = "increment";
-    window.document.channel.postMessage(JSON.stringify(incMessage));
-});
+// Maptastic("keystoneContainer");
 
 //----------------------------------------------------------------------
 
-function handleFileSelect(evt) {
-    // FileList object
-    var files = evt.target.files;
-    console.log(files);
-
-    // files is a FileList of File objects. List some properties.
-    var output = [];
-    var video_ids = [];
-    //loop through slected files
-    for (var i = 0, f; (f = files[i]); i++) {
-        //if img file ext.
-        if (
-            f.name.slice(-3) != "mov" &&
-            f.name.slice(-3) != "MOV" &&
-            f.name.slice(-3) != "mp4" &&
-            f.name.slice(-3) != "mpe" &&
-            f.name.slice(-3) != "MP4" &&
-            f.name.slice(-3) != "avi" &&
-            f.name.slice(-3) != "AVI"
-        ) {
-            output.push(
-                '<div class=" mySlides fade" ><img src="' +
-                    "/" +
-                    appSettings.media_folder +
-                    "/" +
-                    escape(f.name) +
-                    '" height=" 100%" width= "100%" ></div>'
-            );
-        } else {
-            //if movie file
-            output.push(
-                '<div class="mySlides fade"><video controls="controls" poster="MEDIA" src="' +
-                    "/" +
-                    appSettings.media_folder +
-                    "/" +
-                    escape(f.name) +
-                    '" id="video' +
-                    i +
-                    '" height="100%" width= "100%"></video></div>'
-            );
-
-            video_id = "video" + i;
-            video_ids.push(video_id);
-        }
-    }
-
+async function handleFileSelect(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    var files = evt.dataTransfer.files;
     // put slides in first div
-    document.getElementById("keystoneContainer").innerHTML = output.join("");
+    let keystoneContainer = document.getElementById("keystoneContainer");
+    let divs = await parseFiles(files);
+
+    keystoneContainer.innerHTML = divs.join("");
 
     showSlides(0);
+}
+
+// https://stackoverflow.com/questions/15960508/javascript-async-readasdataurl-multiple-files/21153118#21153118
+async function parseFiles(files) {
+    var video_ids = [];
+    var output = [];
+
+    for (let i = 0; i < files.length; i++) {
+        //if img file ext.
+        if (
+            files[i].name.slice(-3) != "mov" &&
+            files[i].name.slice(-3) != "MOV" &&
+            files[i].name.slice(-3) != "mp4" &&
+            files[i].name.slice(-3) != "mpe" &&
+            files[i].name.slice(-3) != "MP4" &&
+            files[i].name.slice(-3) != "avi" &&
+            files[i].name.slice(-3) != "AVI"
+        ) {
+            output.push(
+                "<div class='mySlides fade'><img src='" + +"' /></div>"
+            );
+
+            // } else {
+            //     //if movie file
+            //     output.push(
+            //         '<div class="mySlides fade"><video controls="controls" poster="MEDIA" src="' +
+            //             "/" +
+            //             appSettings.media_folder +
+            //             "/" +
+            //             escape(f.name) +
+            //             '" id="video' +
+            //             i +
+            //             '" height="100%" width= "100%"></video></div>'
+            //     );
+
+            //     video_id = "video" + i;
+            //     video_ids.push(video_id);
+            // }
+        }
+    }
+    // array with base64 strings
+    return await Promise.all(output);
 }
 
 //----------------------------------------------------------------------
@@ -276,7 +198,6 @@ function togglePlayPause() {
 }
 
 //----------------------------------------------------------------------
-let shiftHolder = 0;
 function shiftContent(translateAmount) {
     shiftHolder = shiftHolder + translateAmount;
     let allslides = document.getElementsByClassName("mySlides");
@@ -324,46 +245,6 @@ function toggleFullScreen() {
         requestFullScreen.call(docEl);
     } else {
         cancelFullScreen.call(doc);
-    }
-}
-
-//----------------------------------------------------------------------
-
-function makeIframe() {
-    var url = document.getElementById("inputTxt").value;
-    console.log(url);
-
-    var iframe = "";
-    if (document.getElementById("iframe") == null) {
-        iframe = document.createElement("iframe");
-        document.body.appendChild(iframe);
-    } else {
-        iframe = document.getElementById("iframe");
-    }
-    console.log(iframe);
-
-    if (url == "URL" || url == "") {
-        //default to table test for cityscopeJS
-        iframe.src = "https://cityscope.media.mit.edu/";
-    } else {
-        iframe.src = url;
-    }
-    Maptastic(iframe);
-}
-
-//----------------------------------------------------------------------
-
-function cityIO() {
-    var localStorageKey = "maptastic.layers";
-    if (localStorage.getItem(localStorageKey)) {
-        var data = JSON.parse(localStorage.getItem(localStorageKey));
-        //send to cityIO
-        fetch("https://cityio.media.mit.edu/api/table/update/prjmapJS", {
-            method: "POST",
-            body: data[0]
-        }).then(response => {
-            console.log(response);
-        });
     }
 }
 
@@ -419,10 +300,6 @@ document.body.addEventListener(
             slideDivCrop(-5);
         } else if (keyName == "]") {
             slideDivCrop(5);
-        } else if (keyName == "S") {
-            console.log("save to cityIO...");
-
-            cityIO();
         }
     },
     false
@@ -439,7 +316,23 @@ function KeyPress(e) {
     }
 }
 
-//loading files
-document
-    .getElementById("files")
-    .addEventListener("change", handleFileSelect, false);
+/**
+ *
+ * @param {*} evt
+ */
+
+function handleDragOver(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = "copy";
+}
+
+if (window.File && window.FileReader && window.FileList && window.Blob) {
+    var dropZone = document.getElementById("logo");
+    dropZone.addEventListener("dragover", handleDragOver, false);
+    dropZone.addEventListener("drop", handleFileSelect, false);
+}
+
+// document
+//     .getElementById("files")
+//     .addEventListener("change", handleFileSelect, false);
