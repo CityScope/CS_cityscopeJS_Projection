@@ -25,9 +25,53 @@ getSetting(settingFileName);
 $("<div/>", {
     id: "keystoneContainer"
 }).appendTo("body");
-// Maptastic("keystoneContainer");
 
 //----------------------------------------------------------------------
+
+async function parseFiles(fileList) {
+    // create function which return resolved promise
+    // with data:base64 string
+    function imageGetBase64(file) {
+        const reader = new FileReader();
+        return new Promise(resolve => {
+            reader.onload = ev => {
+                resolve(ev.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    // here will be array of promisified functions
+    const promises = [];
+    // loop through fileList with for loop
+    for (let i = 0; i < fileList.length; i++) {
+        if (
+            fileList[i].name.slice(-3) != "mov" &&
+            fileList[i].name.slice(-3) != "MOV" &&
+            fileList[i].name.slice(-3) != "mp4" &&
+            fileList[i].name.slice(-3) != "mpe" &&
+            fileList[i].name.slice(-3) != "MP4" &&
+            fileList[i].name.slice(-3) != "avi" &&
+            fileList[i].name.slice(-3) != "AVI"
+        ) {
+            let imgData = await imageGetBase64(fileList[i]);
+            promises.push(
+                "<div class='mySlides fade'><img src='" + imgData + "'/></div>"
+            );
+        } else {
+            //if movie file
+            let vidData = await imageGetBase64(fileList[i]);
+            promises.push(
+                '<div class="mySlides fade"><video controls="controls" poster="MEDIA" src="' +
+                    vidData +
+                    '" id="video' +
+                    i +
+                    '" height="100%" width= "100%"></video></div>'
+            );
+        }
+    }
+    // array with base64 strings
+    return await Promise.all(promises);
+}
 
 async function handleFileSelect(evt) {
     evt.stopPropagation();
@@ -35,53 +79,12 @@ async function handleFileSelect(evt) {
     var files = evt.dataTransfer.files;
     // put slides in first div
     let keystoneContainer = document.getElementById("keystoneContainer");
-    let divs = await parseFiles(files);
-
-    keystoneContainer.innerHTML = divs.join("");
+    let imgDivs = await parseFiles(files);
+    imgDivs = imgDivs.join("");
+    keystoneContainer.innerHTML = imgDivs;
+    Maptastic("keystoneContainer");
 
     showSlides(0);
-}
-
-// https://stackoverflow.com/questions/15960508/javascript-async-readasdataurl-multiple-files/21153118#21153118
-async function parseFiles(files) {
-    var video_ids = [];
-    var output = [];
-
-    for (let i = 0; i < files.length; i++) {
-        //if img file ext.
-        if (
-            files[i].name.slice(-3) != "mov" &&
-            files[i].name.slice(-3) != "MOV" &&
-            files[i].name.slice(-3) != "mp4" &&
-            files[i].name.slice(-3) != "mpe" &&
-            files[i].name.slice(-3) != "MP4" &&
-            files[i].name.slice(-3) != "avi" &&
-            files[i].name.slice(-3) != "AVI"
-        ) {
-            output.push(
-                "<div class='mySlides fade'><img src='" + +"' /></div>"
-            );
-
-            // } else {
-            //     //if movie file
-            //     output.push(
-            //         '<div class="mySlides fade"><video controls="controls" poster="MEDIA" src="' +
-            //             "/" +
-            //             appSettings.media_folder +
-            //             "/" +
-            //             escape(f.name) +
-            //             '" id="video' +
-            //             i +
-            //             '" height="100%" width= "100%"></video></div>'
-            //     );
-
-            //     video_id = "video" + i;
-            //     video_ids.push(video_id);
-            // }
-        }
-    }
-    // array with base64 strings
-    return await Promise.all(output);
 }
 
 //----------------------------------------------------------------------
@@ -95,35 +98,24 @@ function plusSlides(n) {
 
 //feed the inner div with the relevant slide content
 function showSlides(n) {
-    var i;
     var slides = document.getElementsByClassName("mySlides");
-
-    //hide all slides divs at start
-    for (i = 0; i < slides.length; i++) {
+    for (let i = 0; i < slides.length; i++) {
         slides[i].style.display = "none";
     }
-    //resert roll to 1 at end
-    if (slides.length > 0 && n == slides.length) {
+    if (n == slides.length) {
         slideIndex = 0;
+    } else {
+        thisSlide = slides[slideIndex];
+        thisSlide.style.display = "fade";
     }
-    // //avoid slide zero
-    if (n < 0 && slides.length > 0) {
-        slideIndex = slides.length - 1;
-    }
-    //set this slide
-    thisSlide = slides[slideIndex];
-
     if (thisSlide.querySelector("video")) {
         let video = thisSlide.querySelector("video");
-
         video.currentTime = 0;
         video.pause();
         video.onended = function() {
-            console.log("video ended! ts: " + Date.now());
             let message = {};
             message.command = "restartVideo";
-            window.document.channel.postMessage(JSON.stringify(message));
-            showSlides(n); // which plays again
+            showSlides(n);
         };
         video.play();
     }
@@ -141,14 +133,11 @@ function autoSlideShow() {
         interval = input.value;
     }
     console.log("Auto slideshow, every " + interval + " seconds.");
-
     var slides = document.getElementsByClassName("mySlides");
-
     //hide all slides divs  at start
     for (var i = 0; i < slides.length; i++) {
         slides[i].style.display = "none";
     }
-
     slideIndex++;
     let message = {};
     message.command = "sync";
@@ -160,7 +149,7 @@ function autoSlideShow() {
         slideIndex = 0;
     }
     //set this slide
-    thisSlide = slides[slideIndex];
+    let thisSlide = slides[slideIndex];
 
     // if video
     if (thisSlide.querySelector("video")) {
@@ -258,34 +247,15 @@ document.body.addEventListener(
     event => {
         const keyName = event.key;
         const keyCode = event.keyCode;
-        let message = {};
-        message.command = "sync";
-        //change slides and send to channel
+
         if (keyName == appSettings.next_slide_button) {
-            message.id = slideIndex;
-            console.log(
-                "(master) sync with slide No:" +
-                    slideIndex +
-                    ", ts: " +
-                    Date.now()
-            );
-            window.document.channel.postMessage(JSON.stringify(message));
             plusSlides(-1);
         } else if (keyName == appSettings.prev_slide_button) {
-            message.id = slideIndex;
-            console.log(
-                "(master) sync with slide No:" +
-                    slideIndex +
-                    ", ts: " +
-                    Date.now()
-            );
-            window.document.channel.postMessage(JSON.stringify(message));
             plusSlides(1);
         } else if (keyCode == 70) {
             toggleFullScreen();
-            console.log(" [f] pressed, toggle full screen, help and UI");
-            let ui = document.getElementById("ui");
-            if (ui.style.display == "block") {
+            let ui = document.getElementById("logo");
+            if (ui.style.display !== "none") {
                 ui.style.display = "none";
             } else {
                 ui.style.display = "block";
@@ -316,23 +286,22 @@ function KeyPress(e) {
     }
 }
 
-/**
- *
- * @param {*} evt
- */
-
 function handleDragOver(evt) {
     evt.stopPropagation();
     evt.preventDefault();
     evt.dataTransfer.dropEffect = "copy";
+    document.getElementById("logo").classList.add("fade");
+}
+
+function handleDragLeave(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    document.getElementById("logo").classList.remove("fade");
 }
 
 if (window.File && window.FileReader && window.FileList && window.Blob) {
     var dropZone = document.getElementById("logo");
     dropZone.addEventListener("dragover", handleDragOver, false);
+    dropZone.addEventListener("dragend", handleDragLeave, false);
     dropZone.addEventListener("drop", handleFileSelect, false);
 }
-
-// document
-//     .getElementById("files")
-//     .addEventListener("change", handleFileSelect, false);

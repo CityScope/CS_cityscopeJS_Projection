@@ -16,6 +16,10 @@ body {
     height: 100%;
 }
 
+.shadow {
+    box-shadow: 5px 10px;
+}
+
 .logo {
     position: fixed;
     top: 50%;
