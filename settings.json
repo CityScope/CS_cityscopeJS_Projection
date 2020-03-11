@@ -1,9 +1,0 @@
-{
-    "kiosk": false,
-    "interval": 2,
-    "media_folder": "media",
-    "next_slide_button": "ArrowLeft",
-    "prev_slide_button": "ArrowRight",
-    "output": ["testVideo_CS_Andorra.mp4", "green.png"],
-    "autoplay_interval": 2
-}

@@ -4,20 +4,6 @@ var currentTimeout;
 var appSettings = null;
 let shiftHolder = 0;
 
-var settingFileName = window.location.search.split("?")[1];
-let getSetting = fileName =>
-    $.getJSON(fileName, function(json) {
-        appSettings = json;
-        if (appSettings.kiosk) {
-            kioskMode();
-        }
-    }).fail(function() {
-        console.log("setting file name error, defaulting..");
-        getSetting("settings.json");
-    });
-
-getSetting(settingFileName);
-
 /**
  *
  * @param {*} evt
@@ -55,11 +41,14 @@ async function handleFileSelect(evt) {
     let keystoneContainer = document.createElement("div");
     document.body.appendChild(keystoneContainer);
     keystoneContainer.className = "keystoneContainer";
+    keystoneContainer.id = "slides";
+    console.log("loading files...");
     let imgDivs = await parseFiles(files);
     imgDivs = imgDivs.join("");
-
     keystoneContainer.innerHTML = imgDivs;
     Maptastic(keystoneContainer);
+    console.log("done loading...");
+
     showSlides(0);
 }
 
@@ -106,11 +95,9 @@ async function parseFiles(fileList) {
             //if movie file
             let vidData = await imageGetBase64(fileList[i]);
             promises.push(
-                '<div class="mySlides fade"><video controls="controls" poster="MEDIA" src="' +
+                '<div class="videoContainer"><div class="mySlides fade"><video controls="controls" poster="MEDIA" src="' +
                     vidData +
-                    '" id="video' +
-                    i +
-                    '" height="100%" width= "100%"></video></div>'
+                    '"width=100% height=auto"></video></div></div>'
             );
         }
     }
@@ -144,28 +131,24 @@ function prevSlide() {
 //feed the inner div with the relevant slide content
 function showSlides(n) {
     var slides = document.getElementsByClassName("mySlides");
-    console.log("slide ", slideIndex, "of ", slides.length);
     for (let i = 0; i < slides.length; i++) {
         slides[i].style.display = "none";
     }
     if (n == slides.length) {
         slideIndex = 0;
-    } else if (n <= 0) {
+    } else if (n < 0) {
         slideIndex = slides.length - 1;
     }
-
     if (slides[slideIndex].querySelector("video")) {
         let video = slides[slideIndex].querySelector("video");
         video.currentTime = 0;
         video.pause();
         video.onended = function() {
-            let message = {};
-            message.command = "restartVideo";
             showSlides(n);
         };
         video.play();
     }
-
+    console.log("slide ", slideIndex + 1, "of ", slides.length);
     slides[slideIndex].style.display = "block";
 }
 
@@ -251,23 +234,6 @@ function shiftContent(translateAmount) {
  * }
  */
 
-let cropHolder = 100;
-function slideDivCrop(cropAmount) {
-    cropHolder = cropAmount + cropHolder;
-    console.log(cropHolder);
-
-    let allslides = document.getElementsByClassName("mySlides");
-    for (let i = 0; i < allslides.length; i++) {
-        allslides[i].style.width = cropHolder + "%";
-    }
-}
-
-/**
- *
- * @param {
- * }
- */
-
 //go full screen
 function toggleFullScreen() {
     var doc = window.document;
@@ -310,9 +276,9 @@ document.body.addEventListener(
         const keyName = event.key;
         const keyCode = event.keyCode;
 
-        if (keyName == appSettings.next_slide_button) {
+        if (keyName == "ArrowLeft") {
             prevSlide();
-        } else if (keyName == appSettings.prev_slide_button) {
+        } else if (keyName == "ArrowRight") {
             nextSlide();
         } else if (keyCode == 70) {
             toggleFullScreen();
@@ -324,14 +290,6 @@ document.body.addEventListener(
             }
         } else if (keyName == "P") {
             togglePlayPause();
-        } else if (keyName == "-") {
-            shiftContent(-10);
-        } else if (keyName == "=") {
-            shiftContent(10);
-        } else if (keyName == "[") {
-            slideDivCrop(-5);
-        } else if (keyName == "]") {
-            slideDivCrop(5);
         }
     },
     false
