@@ -1,8 +1,9 @@
 var slideIndex = 0;
-var playing = false;
+var playingSlideshow = false;
 var currentTimeout;
 var appSettings = null;
 let shiftHolder = 0;
+var infoDiv = document.getElementById("info");
 
 /**
  *
@@ -42,13 +43,11 @@ async function handleFileSelect(evt) {
     document.body.appendChild(keystoneContainer);
     keystoneContainer.className = "keystoneContainer";
     keystoneContainer.id = "slides";
-    console.log("loading files...");
+    infoDiv.innerHTML = "loading files...";
     let imgDivs = await parseFiles(files);
     imgDivs = imgDivs.join("");
     keystoneContainer.innerHTML = imgDivs;
     Maptastic(keystoneContainer);
-    console.log("done loading...");
-
     showSlides(0);
 }
 
@@ -80,7 +79,6 @@ async function parseFiles(fileList) {
             fileList[i].name.slice(-3) != "mov" &&
             fileList[i].name.slice(-3) != "MOV" &&
             fileList[i].name.slice(-3) != "mp4" &&
-            fileList[i].name.slice(-3) != "mpe" &&
             fileList[i].name.slice(-3) != "MP4" &&
             fileList[i].name.slice(-3) != "avi" &&
             fileList[i].name.slice(-3) != "AVI"
@@ -97,7 +95,7 @@ async function parseFiles(fileList) {
             promises.push(
                 '<div class="videoContainer"><div class="mySlides fade"><video controls="controls" poster="MEDIA" src="' +
                     vidData +
-                    '"width=100% height=auto"></video></div></div>'
+                    '"width=100% height=100%"></video></div></div>'
             );
         }
     }
@@ -146,9 +144,22 @@ function showSlides(n) {
         video.onended = function() {
             showSlides(n);
         };
-        video.play();
+
+        video.addEventListener("progress", function() {
+            var loadedPercentage = video.end(0) / video.duration;
+            infoDiv.innerHTML = loadedPercentage.toString();
+        });
+
+        video.addEventListener(
+            "canplaythrough",
+            function() {
+                video.play();
+            },
+            false
+        );
     }
-    console.log("slide ", slideIndex + 1, "of ", slides.length);
+    infoDiv.innerHTML =
+        "playing slide " + (slideIndex + 1).toString() + " of " + slides.length;
     slides[slideIndex].style.display = "block";
 }
 
@@ -160,40 +171,12 @@ function showSlides(n) {
 
 //autoplay when press P
 function autoSlideShow() {
-    let interval;
-    if (!document.getElementById("intSlide").value) {
-        interval = appSettings.autoplay_interval;
-    } else {
-        interval = input.value;
-    }
-    console.log("Auto slideshow, every " + interval + " seconds.");
-    var slides = document.getElementsByClassName("mySlides");
-    //hide all slides divs  at start
-    for (var i = 0; i < slides.length; i++) {
-        slides[i].style.display = "none";
-    }
-    slideIndex++;
-    //resert roll to 1 at end
-    if (slideIndex == slides.length) {
-        slideIndex = 0;
-    }
-    //set this slide
-    let thisSlide = slides[slideIndex];
-    // if video
-    if (thisSlide.querySelector("video")) {
-        let video = thisSlide.querySelector("video");
-        video.currentTime = 0;
-        video.pause();
-        video.onended = function() {
-            console.log("video ended! ts: " + Date.now());
-            let message = {};
-            message.command = "restartVideo";
-            video.play();
-        };
-        video.play();
-    }
-    thisSlide.style.display = "block";
-    if (playing == true) {
+    let interval = document.getElementById("slidesInterval").value;
+    if (!interval)
+        interval = document.getElementById("slidesInterval").placeholder;
+    // go to next slide
+    if (playingSlideshow == true) {
+        nextSlide();
         currentTimeout = setTimeout(autoSlideShow, interval * 1000);
     }
 }
@@ -205,12 +188,11 @@ function autoSlideShow() {
  */
 
 function togglePlayPause() {
-    if (playing == true) {
-        playing = false;
+    if (playingSlideshow == true) {
+        playingSlideshow = false;
         clearTimeout(currentTimeout);
     } else {
-        //play slide show
-        playing = true;
+        playingSlideshow = true;
         autoSlideShow();
     }
 }
@@ -237,25 +219,27 @@ function shiftContent(translateAmount) {
 //go full screen
 function toggleFullScreen() {
     var doc = window.document;
-    var docEl = doc.documentElement;
+    var docElement = doc.documentElement;
+    //
     var requestFullScreen =
-        docEl.requestFullscreen ||
-        docEl.mozRequestFullScreen ||
-        docEl.webkitRequestFullScreen ||
-        docEl.msRequestFullscreen;
+        docElement.requestFullscreen ||
+        docElement.mozRequestFullScreen ||
+        docElement.webkitRequestFullScreen ||
+        docElement.msRequestFullscreen;
+    //
     var cancelFullScreen =
         doc.exitFullscreen ||
         doc.mozCancelFullScreen ||
         doc.webkitExitFullscreen ||
         doc.msExitFullscreen;
-
+    //
     if (
         !doc.fullscreenElement &&
         !doc.mozFullScreenElement &&
         !doc.webkitFullscreenElement &&
         !doc.msFullscreenElement
     ) {
-        requestFullScreen.call(docEl);
+        requestFullScreen.call(docElement);
     } else {
         cancelFullScreen.call(doc);
     }

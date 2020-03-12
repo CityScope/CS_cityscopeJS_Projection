@@ -4,22 +4,28 @@
         <meta charset="UTF-8" />
         <link rel="shortcut icon" href="#" />
         <link rel="stylesheet" href="styles.css" />
-        <script
-            type="text/javascript"
-            src="https://code.jquery.com/jquery-2.1.1.min.js"
-        ></script>
     </head>
 
     <body>
-        <div id="logo" class="logo">
-            <img src="bg.png" alt="Key Stoner" height="150vw" />
-            <br />
-            <input type="number" placeholder="5" id="intSlide"/ >
-            <input
-                type="button"
-                value="Toggle Slideshow"
-                onclick="togglePlayPause()"
-            />
+        <div id="logo" class="UI">
+            <img src="bg.png" class="logoImg" />
+            <div class="inputDiv">
+                <div id="info" class="text">
+                    Drag and drop Media Files...
+                </div>
+                <input type="number" placeholder="2" id="slidesInterval" / >
+                <input
+                    type="button"
+                    value="Run Slideshow"
+                    onclick="togglePlayPause()"
+                />
+                <a
+                    href="https://github.com/CityScope/CS_cityscopeJS_Projection"
+                    target="_blank"
+                >
+                    <img src="logosWhite.png" class="CSlogoImg" />
+                </a>
+            </div>
         </div>
     </body>
 
