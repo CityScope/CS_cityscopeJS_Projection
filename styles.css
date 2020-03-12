@@ -2,50 +2,64 @@ body {
     margin: 0;
     padding: 0;
     color: white;
-    background-color: black;
+    background-color: rgb(0, 0, 0);
 }
 
-#keystoneContainer {
+.text {
+    font-weight: 100;
+    font-family: Helvetica, sans-serif, "Franklin Gothic Medium", "Arial Narrow",
+        Arial, sans-serif;
+}
+
+.inputDiv {
+    padding: 1em;
+    margin: 1em;
+    width: 50%;
+    margin: 0 auto;
+}
+
+.videoContainer {
+    position: absolute;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
-    width: 75vw !important;
-    height: 75vh !important;
 }
 
-/* slide div crop settings  */
 .mySlides {
     width: 100%;
     height: 100%;
+    display: block;
 }
 
-.helpDiv {
-    position: fixed;
-    left: 2rem;
-    width: 60%;
-    top: 2rem;
-    font-size: 14px;
-    font-family: Helvetica, sans-serif;
+video {
+    object-fit: fill;
 }
 
-.logo {
-    position: fixed;
+.UI {
+    margin: 0;
+    position: absolute;
+    top: 50%;
     left: 50%;
-    top: 30%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.logoImg {
+    width: 30em;
+    height: auto;
 }
 
-iframe {
-    width: 50vw;
-    height: 50vh;
+.CSlogoImg {
+    padding: 2em;
+    width: 3em;
+    height: auto;
+    display: block;
+    margin: auto;
 }
 
-#keystoneContainer {
-    width: 100vh;
-    height: 100vw;
-}
-.overCanvas {
-    position: fixed;
-    left: 0rem;
-    top: 95%;
-    z-index: 9999;
+.keystoneContainer {
+    width: 20em;
+    height: 20em;
+    z-index: -1;
 }
 
 video {
@@ -56,7 +70,6 @@ video::-webkit-media-controls {
     display: none;
 }
 
-/* Next & previous buttons */
 .prev,
 .next {
     cursor: pointer;
@@ -85,14 +98,14 @@ video::-webkit-media-controls {
 /* Fading animation */
 .fade {
     -webkit-animation-name: fade;
-    -webkit-animation-duration: 1.5s;
+    -webkit-animation-duration: 1s;
     animation-name: fade;
-    animation-duration: 1.5s;
+    animation-duration: 1s;
 }
 
 @-webkit-keyframes fade {
     from {
-        opacity: 0.4;
+        opacity: 0;
     }
     to {
         opacity: 1;
@@ -101,7 +114,7 @@ video::-webkit-media-controls {
 
 @keyframes fade {
     from {
-        opacity: 0.4;
+        opacity: 0;
     }
     to {
         opacity: 1;
